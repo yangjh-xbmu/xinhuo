@@ -1,0 +1,21 @@
+# 使用 Node.js 20 Alpine 镜像作为基础镜像
+FROM node:20-alpine
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制 package.json 和 package-lock.json（如果存在）
+# 这样做可以利用 Docker 的层缓存机制，只有在依赖变更时才重新安装
+COPY package*.json ./
+
+# 安装依赖
+RUN npm ci --only=production=false
+
+# 复制所有源代码
+COPY . .
+
+# 暴露端口 3000
+EXPOSE 3000
+
+# 启动开发服务器
+CMD ["npm", "run", "dev"]

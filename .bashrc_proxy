@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Bash代理自动配置文件
+# 将此文件添加到你的 ~/.bashrc 或 ~/.bash_profile 中
+
+# 获取脚本所在目录
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROXY_SCRIPT="$SCRIPT_DIR/proxy_manager.sh"
+
+# 检查代理管理脚本是否存在
+if [[ -f "$PROXY_SCRIPT" ]]; then
+    # 加载代理管理脚本
+    source "$PROXY_SCRIPT"
+    
+    # 定义快捷别名
+    alias proxy='bash "$PROXY_SCRIPT"'
+    alias proxy-on='proxy_on'
+    alias proxy-off='proxy_off'
+    alias proxy-status='proxy_status'
+    
+    # 显示加载信息（可选，如果不想看到可以注释掉）
+    echo "🔧 代理管理工具已加载"
+    echo "   使用 'proxy-on' 启用代理"
+    echo "   使用 'proxy-off' 禁用代理"
+    echo "   使用 'proxy-status' 查看状态"
+else
+    echo "⚠️  警告: 代理管理脚本未找到: $PROXY_SCRIPT"
+fi
+
+# 可选: 设置Git代理函数
+git_proxy_on() {
+    if [[ -n "$http_proxy" ]]; then
+        git config --global http.proxy "$http_proxy"
+        git config --global https.proxy "$https_proxy"
+        echo "✓ Git代理已启用"
+    else
+        echo "⚠️  请先启用系统代理"
+    fi
+}
+
+git_proxy_off() {
+    git config --global --unset http.proxy
+    git config --global --unset https.proxy
+    echo "✗ Git代理已禁用"
+}
+
+# 添加Git代理别名
+alias git-proxy-on='git_proxy_on'
+alias git-proxy-off='git_proxy_off'

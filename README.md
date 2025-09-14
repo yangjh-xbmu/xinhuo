@@ -57,7 +57,28 @@ docker-compose up -d
 
 此命令将启动所有服务（前端、后端、数据库）并在后台运行。
 
-### 4. 验证步骤
+### 4. 数据库迁移
+
+在首次启动应用后，需要运行数据库迁移来创建必要的数据表：
+
+```bash
+# 进入后端容器
+docker-compose exec backend bash
+
+# 运行数据库迁移
+alembic upgrade head
+
+# 退出容器
+exit
+```
+
+或者直接执行：
+
+```bash
+docker-compose exec backend alembic upgrade head
+```
+
+### 5. 验证步骤
 
 **检查服务状态**
 
@@ -82,7 +103,7 @@ docker-compose ps
 - 服务间网络通信正常
 - 整个应用栈配置正确
 
-### 5. 停止应用
+### 6. 停止应用
 
 ```bash
 docker-compose down
@@ -159,5 +180,14 @@ A: 检查 Docker 是否正常运行，端口 3000、8000、5432 是否被占用
 **Q: 前端页面无法显示后端数据？**
 A: 确认所有服务都已启动，检查 `docker-compose ps` 输出
 
+**Q: 数据库连接失败怎么办？**
+A: 确认 `.env` 文件中的数据库配置正确，并且已运行数据库迁移 `alembic upgrade head`
+
+**Q: 如何重置数据库？**
+A: 停止服务后删除数据卷 `docker-compose down -v`，然后重新启动并运行迁移
+
 **Q: 如何查看服务日志？**
 A: 使用 `docker-compose logs [service-name]` 查看特定服务日志
+
+**Q: 如何手动运行数据库迁移？**
+A: 使用 `docker-compose exec backend alembic upgrade head` 或进入容器后执行 `alembic` 命令
